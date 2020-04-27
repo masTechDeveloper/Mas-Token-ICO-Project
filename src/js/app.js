@@ -110,12 +110,12 @@ App = {
           })
           .then(function (balance) {
             $('.mas-balance').html(balance.toNumber());
+
+            App.loading = false;
+            loader.hide();
+            content.show();
           });
       });
-
-    App.loading = false;
-    loader.hide();
-    content.show();
   },
 };
 
