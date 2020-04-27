@@ -71,6 +71,7 @@ App = {
       }
     });
 
+    // Token Sale Contract
     App.contracts.MasTokenSale.deployed()
       .then(function (instance) {
         masTokenSaleInstance = instance;
@@ -88,9 +89,28 @@ App = {
         return masTokenSaleInstance.tokenSold();
       })
       .then(function (tokenSold) {
+        // Dummy Progress test
+        // App.tokenSold = 553423;
+
+        // Orignal Progress get value
         App.tokenSold = tokenSold.toNumber();
         $('.tokens-sold').html(App.tokenSold);
         $('.tokens-available').html(App.tokensAvailable);
+
+        var progressPercent =
+          (Math.ceil(App.tokenSold) / App.tokensAvailable) * 100;
+        $('#progress').css('width', progressPercent + '%');
+
+        // Token Contract
+
+        App.contracts.MasToken.deployed()
+          .then(function (instance) {
+            masTokenInstance = instance;
+            return masTokenInstance.balanceOf(App.account);
+          })
+          .then(function (balance) {
+            $('.mas-balance').html(balance.toNumber());
+          });
       });
 
     App.loading = false;
