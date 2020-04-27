@@ -2,10 +2,10 @@ App = {
   web3Provider: null,
   contracts: {},
   account: '0x0',
-  // loading: false,
-  // tokenPrice: 1000000000000000,
-  // tokensSold: 0,
-  // tokensAvailable: 750000,
+  loading: false,
+  tokenPrice: 1000000000000000,
+  tokenSold: 0,
+  tokensAvailable: 750000,
 
   init: function () {
     console.log('App Initialized...');
@@ -43,12 +43,23 @@ App = {
         });
 
         //             App.listenForEvents();
-        return App.render();
+        return App.getAccount();
       });
     });
   },
 
-  render: function () {
+  getAccount: function () {
+    if (App.loading) {
+      return;
+    }
+    App.loading = true;
+
+    var loader = $('#loader');
+    var content = $('#content');
+
+    loader.show();
+    content.hide();
+
     // Load Accounts Data
     web3.eth.getCoinbase(function (err, account) {
       if (err === null) {
@@ -56,10 +67,35 @@ App = {
         $('#accountAddress').html(
           'Your Account:  &nbsp;  &nbsp;  &nbsp; ' + account
         );
-
-        console.log('Metamask Get Account Address : ' + account);
+        // console.log('Metamask Get Account Address : ' + account);
       }
     });
+
+    App.contracts.MasTokenSale.deployed()
+      .then(function (instance) {
+        masTokenSaleInstance = instance;
+        return masTokenSaleInstance.tokenPrice();
+      })
+      .then(function (tokenPrice) {
+        App.tokenPrice = tokenPrice;
+        console.log(
+          'Token Price Convert WEI to ETHER : ' +
+            web3.fromWei(tokenPrice, 'ether')
+        );
+        $('.token-price').html(
+          web3.fromWei(App.tokenPrice, 'ether').toNumber()
+        );
+        return masTokenSaleInstance.tokenSold();
+      })
+      .then(function (tokenSold) {
+        App.tokenSold = tokenSold.toNumber();
+        $('.tokens-sold').html(App.tokenSold);
+        $('.tokens-available').html(App.tokensAvailable);
+      });
+
+    App.loading = false;
+    loader.hide();
+    content.show();
   },
 };
 
