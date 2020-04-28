@@ -117,6 +117,27 @@ App = {
           });
       });
   },
+
+  buyTokens: function () {
+    $('#content').hide();
+    $('#loader').show();
+    var numberOfTokens = $('#numberOfTokens').val();
+
+    App.contracts.MasTokenSale.deployed()
+      .then(function (instance) {
+        return instance.buyTokens(numberOfTokens, {
+          from: App.account,
+          value: numberOfTokens * App.tokenPrice,
+          gas: 500000,
+        });
+      })
+      .then(function (result) {
+        console.log('Token Bought....');
+        $('form').trigger('reset'); // reset number of tokens in form value
+        $('#loader').hide();
+        $('#content').show();
+      });
+  },
 };
 
 $(document).ready(function () {
